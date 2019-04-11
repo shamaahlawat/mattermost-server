@@ -391,6 +391,7 @@ func (a *App) sendOutOfChannelMentions(sender *model.User, post *model.Post, out
 		return nil
 	}
 
+	allMentionedUsernames, allMentionedUserIDs := collectUsernamesAndIDs(append(outOfChannelUsers, outOfGroupsUsers...))
 	outOfChannelUsernames, outOfChannelUserIds := collectUsernamesAndIDs(outOfChannelUsers)
 	outOfGroupsUsernames, outOfGroupsUserIds := collectUsernamesAndIDs(outOfGroupsUsers)
 
@@ -434,11 +435,13 @@ func (a *App) sendOutOfChannelMentions(sender *model.User, post *model.Post, out
 
 	props := model.StringInterface{
 		model.PROPS_ADD_CHANNEL_MEMBER: model.StringInterface{
-			"post_id":             ephemeralPostId,
-			"usernames":           outOfChannelUsernames,
-			"user_ids":            outOfChannelUserIds,
-			"no_groups_usernames": outOfGroupsUsernames,
-			"no_groups_user_ids":  outOfGroupsUserIds,
+			"post_id":              ephemeralPostId,
+			"usernames":            allMentionedUsernames, // Kept for backwards compatibility of mobile app.
+			"user_ids":             allMentionedUserIDs,   // Kept for backwards compatibility of mobile app.
+			"no_channel_usernames": outOfChannelUsernames,
+			"no_channel_user_ids":  outOfChannelUserIds,
+			"no_groups_usernames":  outOfGroupsUsernames,
+			"no_groups_user_ids":   outOfGroupsUserIds,
 		},
 	}
 
